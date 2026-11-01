@@ -1,0 +1,20 @@
+IB ATL Skills Tester — share package
+=====================================
+
+atl-tester.html   ← RECOMMENDED. One single file. Double-click to open, or upload to
+                     Google Drive / OneDrive / Dropbox / email it to colleagues.
+                     Works completely offline. No server, no installation.
+
+index.html + data.js + i18n.js
+                  ← For hosting on a real web address (share a link).
+                     Drop the whole folder on Netlify Drop, GitHub Pages,
+                     Vercel, Cloudflare Pages, or any school web server.
+
+README.md         ← Hosting instructions + full description.
+
+Quickest way to get a public link:
+  1. Go to https://app.netlify.com/drop
+  2. Drag this folder in
+  3. Copy the URL it gives you and share it
+
+Language: English / 简体中文 — toggle button in the top-right corner.

@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IB ATL Skills Tester</title>
+<style>
+/* ── Reset & base ─────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,-apple-system,sans-serif;
+  background:#f0f2f5;color:#1a1a2e;overflow:hidden}
+h1{font-size:1.4rem;text-align:center;padding:12px 0 2px;color:#16213e}
+.subtitle{text-align:center;color:#666;font-size:.85rem;margin-bottom:8px}
+
+/* ── Language toggle ──────────────────────────────── */
+.lang-wrap{position:fixed;top:12px;right:14px;z-index:900}
+.lang-btn{border:2px solid #2980b9;background:#fff;color:#2980b9;border-radius:20px;padding:6px 14px;
+  font-size:.82rem;font-weight:700;cursor:pointer;transition:.2s;font-family:inherit}
+.lang-btn:hover{background:#2980b9;color:#fff}
+
+/* ── App shell ────────────────────────────────────── */
+#app{height:calc(100vh - 104px);display:flex;flex-direction:column;padding:0 14px 12px;max-width:1180px;margin:0 auto}
+.stage{display:none;flex:1;min-height:0;flex-direction:column}
+.stage.active{display:flex}
+.stage-scroll{overflow-y:auto;flex:1;min-height:0;padding-bottom:8px}
+
+/* ── Progress ─────────────────────────────────────── */
+.progress-bar{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.8rem;background:#d0d4da;color:#fff;transition:.3s}
+.step-dot.done{background:#27ae60}
+.step-dot.current{background:#2980b9;transform:scale(1.12);box-shadow:0 3px 10px rgba(41,128,185,.35)}
+
+/* ── Buttons ──────────────────────────────────────── */
+.btn{border:none;border-radius:10px;padding:10px 18px;font-size:.9rem;cursor:pointer;font-weight:600;
+  transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-family:inherit}
+.btn-primary{background:#2980b9;color:#fff}.btn-primary:hover{background:#1a6aa0;transform:translateY(-1px)}
+.btn-success{background:#27ae60;color:#fff}.btn-success:hover{background:#1e8449}
+.btn-outline{background:#fff;border:2px solid #2980b9;color:#2980b9}.btn-outline:hover{background:#2980b9;color:#fff}
+.btn-sm{padding:7px 13px;font-size:.82rem}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+.btn-group{display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+
+/* ── Section intro card ───────────────────────────── */
+.intro-card{background:linear-gradient(135deg,#2980b9,#1a5276);color:#fff;border-radius:14px;
+  padding:14px 20px;margin-bottom:12px;max-width:900px;margin-left:auto;margin-right:auto}
+.intro-card .badge{display:inline-block;background:rgba(255,255,255,.22);padding:3px 12px;border-radius:20px;
+  font-size:.72rem;font-weight:700;letter-spacing:.05em;margin-bottom:6px}
+.intro-card h2{font-size:1.15rem;margin-bottom:5px}
+.intro-card p{font-size:.87rem;line-height:1.55;opacity:.96}
+.intro-card .hint{margin-top:8px;font-size:.8rem;opacity:.85;font-style:italic}
+
+/* ── Stage 1 ──────────────────────────────────────── */
+.s1-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:8px;max-width:1000px;
+  margin:0 auto;width:100%}
+.s1-card{background:#fff;border:2px solid #dde2ea;border-radius:11px;padding:9px 11px;cursor:pointer;
+  transition:all .15s;user-select:none;position:relative;min-height:62px}
+.s1-card:hover{border-color:#7fb3d5;box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.s1-card.selected{border-color:#2980b9;background:#eaf4fc;box-shadow:0 3px 10px rgba(41,128,185,.18)}
+.s1-card.selected::after{content:'✓';position:absolute;top:5px;right:7px;background:#2980b9;color:#fff;
+  width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+.s1-card .name{font-weight:700;font-size:.84rem;margin-bottom:2px;padding-right:20px;line-height:1.25}
+.s1-card .blurb{font-size:.72rem;color:#666;line-height:1.3}
+.s1-counter{text-align:center;margin:8px 0;font-size:.95rem;color:#2980b9;font-weight:600}
+.s1-counter .num{font-size:1.3rem}
+
+/* ── Stage 2 ──────────────────────────────────────── */
+.s2-layout{display:grid;grid-template-columns:340px 1fr;gap:12px;flex:1;min-height:0}
+.s2-panel{background:#fff;border:2px solid #dde2ea;border-radius:14px;display:flex;flex-direction:column;
+  min-height:0;overflow:hidden}
+.s2-panel-head{padding:9px 12px;border-bottom:2px solid #eef1f5;background:#fafbfd;flex-shrink:0}
+.s2-panel-head .t{font-weight:700;font-size:.85rem}
+.s2-panel-head .s{font-size:.72rem;color:#888;margin-top:1px}
+.s2-list{overflow-y:auto;flex:1;padding:6px}
+.ss-row{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1.5px solid #e4e8ee;border-radius:9px;
+  margin-bottom:5px;cursor:pointer;transition:all .13s;background:#fff}
+.ss-row:hover{border-color:#7fb3d5;background:#f7fafc;transform:translateX(2px)}
+.ss-row.placed{background:#fafbfc;border-style:dashed}
+.ss-row.wrong-row{background:#fadbd8;border-color:#e74c3c;border-style:solid}
+.ss-row.wrong-row .ss-where{background:#c0392b!important}
+.ss-row .ss-name{font-size:.83rem;font-weight:600;flex:1;line-height:1.25}
+.ss-row .ss-desc{font-size:.7rem;color:#888;font-weight:400;display:block;margin-top:1px}
+.ss-row .ss-where{font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:20px;color:#fff;white-space:nowrap;flex-shrink:0}
+.ss-row .ss-none{font-size:.68rem;color:#aaa;font-weight:600;white-space:nowrap}
+.s2-boxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:10px;min-height:0;overflow-y:auto}
+.s2-box{background:#fff;border:2px dashed #c3ccd6;border-radius:13px;display:flex;flex-direction:column;
+  min-height:120px;overflow:hidden}
+.s2-box-head{padding:7px 10px;border-bottom:2px solid #eef1f5;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.s2-box-badge{padding:4px 10px;border-radius:20px;color:#fff;font-weight:700;font-size:.74rem;white-space:nowrap}
+.s2-box-count{margin-left:auto;font-size:.72rem;color:#888;font-weight:600}
+.s2-box-chips{padding:7px;overflow-y:auto;flex:1;min-height:48px}
+.chip{background:#f7f9fc;border:2px solid #cdd6e0;border-radius:9px;padding:6px 10px;font-size:.79rem;font-weight:600;
+  cursor:pointer;transition:all .15s;user-select:none;margin-bottom:5px}
+.chip:hover{border-color:#7fb3d5;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.chip .desc{font-weight:400;font-size:.7rem;color:#777;display:block;margin-top:1px}
+.chip.ok{border-color:#27ae60;background:#eafaf1}
+.chip.ok .desc{color:#1e8449}
+.chip.bad{border-color:#e74c3c;background:#fadbd8}
+.chip.bad .desc{color:#922b21;font-weight:600}
+.empty-hint{color:#aaa;font-style:italic;font-size:.78rem;text-align:center;padding:14px 4px}
+
+.badge-thinking{background:#8e44ad}
+.badge-social{background:#e67e22}
+.badge-self{background:#27ae60}
+.badge-communication{background:#2980b9}
+.badge-research{background:#c0392b}
+
+/* ── Modal ────────────────────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(16,24,40,.55);z-index:1000;
+  align-items:center;justify-content:center;padding:18px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:88vh;overflow-y:auto;
+  box-shadow:0 18px 50px rgba(0,0,0,.3);animation:pop .22s ease}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+.modal-head{padding:15px 20px 10px;text-align:center;border-bottom:1px solid #eef1f5}
+.modal-head .t{font-size:1.02rem;font-weight:700}
+.modal-head .s{font-size:.82rem;color:#888;margin-top:4px}
+.modal-body{padding:12px 16px}
+.modal-opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:2px solid #e4e8ee;
+  border-radius:11px;padding:11px 14px;margin-bottom:8px;cursor:pointer;font-size:.88rem;font-weight:600;
+  transition:all .15s;font-family:inherit;color:inherit}
+.modal-opt:hover{border-color:#2980b9;background:#eaf4fc;transform:translateX(3px)}
+.modal-opt .dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.modal-opt .bl{font-weight:400;font-size:.74rem;color:#777;display:block;margin-top:2px}
+.modal-opt.current{border-color:#27ae60;background:#eafaf1}
+.modal-foot{padding:10px 16px 16px;display:flex;gap:9px;justify-content:center;border-top:1px solid #eef1f5}
+
+/* ── Stage 3 ──────────────────────────────────────── */
+.quiz-container{max-width:700px;margin:0 auto;width:100%}
+.quiz-progress{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;font-size:.88rem;color:#555}
+.quiz-q-num{background:#2980b9;color:#fff;width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-weight:700}
+.quiz-stem{background:#fff;border-radius:14px;padding:18px 22px;margin-bottom:12px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.quiz-label{font-size:.76rem;color:#888;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.cluster-list{list-style:none;text-align:left;max-width:560px;margin:0 auto}
+.cluster-stem{display:flex;gap:10px;align-items:flex-start;padding:7px 12px;margin-bottom:5px;
+  background:#f7f9fc;border-left:4px solid #2980b9;border-radius:8px;font-size:.93rem;font-weight:600;
+  color:#2c3e50;line-height:1.35}
+.cluster-stem:last-child{margin-bottom:0}
+.cluster-num{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:#2980b9;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;margin-top:1px}
+.quiz-options{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.quiz-opt{background:#fff;border:2px solid #dde2ea;border-radius:10px;padding:10px 15px;cursor:pointer;
+  font-weight:600;font-size:.89rem;transition:all .13s;user-select:none;font-family:inherit;color:inherit}
+.quiz-opt:hover{border-color:#7fb3d5;background:#f7fafc}
+.quiz-opt.selected-atl{border-color:#2980b9;background:#eaf4fc}
+.quiz-opt.selected-sub{border-color:#27ae60;background:#eafaf1}
+.quiz-opt.correct{border-color:#27ae60;background:#d5f5e3}
+.quiz-opt.wrong{border-color:#e74c3c;background:#fadbd8}
+.quiz-opt.locked{pointer-events:none}
+.quiz-sub-options{margin-left:20px;display:flex;flex-direction:column;gap:6px}
+.quiz-sub-options .quiz-opt{font-size:.85rem;padding:9px 13px}
+.quiz-nav{display:flex;justify-content:center;gap:10px;margin-top:10px}
+
+/* Instant feedback */
+.qf{margin:4px 0 10px;padding:11px 15px;border-radius:11px;font-size:.88rem;line-height:1.5;
+  display:flex;gap:9px;align-items:flex-start;animation:pop .2s ease}
+.qf .qi{font-size:1.05rem;line-height:1.2}
+.qf.good{background:#eafaf1;color:#1e8449;border:1.5px solid #27ae60}
+.qf.bad{background:#fadbd8;color:#922b21;border:1.5px solid #e74c3c}
+.qf.info{background:#ebf5fb;color:#2471a3;border:1.5px solid #2980b9}
+.qf .qf-title{font-weight:700;display:block;margin-bottom:2px}
+
+/* ── Results ──────────────────────────────────────── */
+.results-table{width:100%;border-collapse:collapse;margin-top:12px;background:#fff;border-radius:12px;overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);font-size:.83rem}
+.results-table th{background:#2c3e50;color:#fff;padding:9px 12px;font-size:.81rem;text-align:left}
+.results-table td{padding:8px 12px;border-bottom:1px solid #eee;vertical-align:top}
+.results-table tr:last-child td{border-bottom:none}
+.results-table .correct-row td{background:#eafaf1}
+.results-table .wrong-row td{background:#fadbd8}
+.score-panel{background:#fff;border-radius:14px;padding:14px 18px;margin:0 auto;max-width:540px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);text-align:center}
+.score-panel .big{font-size:2.1rem;font-weight:800;color:#27ae60}
+.score-panel .label{color:#666;font-size:.88rem}
+.attempts{font-size:.72rem;color:#888;margin-top:4px}
+
+/* ── Responsive ───────────────────────────────────── */
+@media(max-width:760px){
+  body{overflow:auto}
+  #app{height:auto}
+  .s2-layout{grid-template-columns:1fr}
+  .s2-list{max-height:280px}
+  .s2-boxes{overflow:visible}
+  .lang-wrap{position:static;text-align:center;padding-top:8px}
+}
+</style>
+<!-- IB ATL Skills Tester — single-file build. Self-contained: works offline, no server needed. -->
+</head>
+<body>
+
+<div class="lang-wrap">
+  <button class="lang-btn" id="langBtn" onclick="toggleLang()">中文</button>
+</div>
+
+<h1 id="siteTitle">IB ATL Skills Tester</h1>
+<p class="subtitle" id="siteSubtitle"></p>
+
+<div class="progress-bar">
+  <div class="step-dot current" id="dot1">1</div>
+  <div class="step-dot" id="dot2">2</div>
+  <div class="step-dot" id="dot3">3</div>
+</div>
+
+<div id="app">
+
+<!-- ═══ STAGE 1 ═══ -->
+<div class="stage active" id="stage1">
+  <div class="stage-scroll">
+    <div class="intro-card">
+      <span class="badge" id="s1Badge"></span>
+      <h2 id="s1Title"></h2>
+      <p id="s1Intro"></p>
+      <div class="hint" id="s1Hint"></div>
+    </div>
+    <div class="s1-counter"><span class="num" id="s1Count">0</span> <span id="s1CounterWord"></span> / 5</div>
+    <div class="s1-grid" id="s1Grid"></div>
+    <div class="btn-group">
+      <button class="btn btn-primary" id="s1Next" onclick="goStage2()" disabled></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STAGE 2 ═══ -->
+<div class="stage" id="stage2">
+  <div class="intro-card">
+    <span class="badge" id="s2Badge"></span>
+    <h2 id="s2Title"></h2>
+    <p id="s2Intro"></p>
+    <div class="hint" id="s2Status"></div>
+  </div>
+  <div class="s2-layout">
+    <div class="s2-panel">
+      <div class="s2-panel-head">
+        <div class="t" id="s2PanelTitle"></div>
+        <div class="s" id="s2PanelSub"></div>
+      </div>
+      <div class="s2-list" id="s2List"></div>
+    </div>
+    <div class="s2-boxes" id="s2Boxes"></div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-outline btn-sm" onclick="goStage1()" id="s2Back"></button>
+    <button class="btn btn-outline btn-sm" onclick="checkStage2()" id="s2Check"></button>
+    <button class="btn btn-outline btn-sm" onclick="resetStage2()" id="s2Reset"></button>
+    <button class="btn btn-primary btn-sm" id="s2Next" onclick="goStage3()"></button>
+  </div>
+</div>
+
+<!-- ═══ STAGE 3 ═══ -->
+<div class="stage" id="stage3">
+  <div class="stage-scroll">
+    <div class="intro-card">
+      <span class="badge" id="s3Badge"></span>
+      <h2 id="s3Title"></h2>
+      <p id="s3Intro"></p>
+    </div>
+    <div class="quiz-container" id="quizContainer"></div>
+    <div class="btn-group" id="quizNav" style="display:none">
+      <button class="btn btn-outline" onclick="goStage2()" id="s3Back"></button>
+      <button class="btn btn-success" onclick="showResults()" id="s3Results"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+<div class="stage" id="stageResults">
+  <div class="stage-scroll">
+    <div class="score-panel">
+      <div class="label" id="rScoreLabel"></div>
+      <div class="big" id="finalScore">0%</div>
+      <div id="scoreBreakdown" style="margin-top:8px"></div>
+    </div>
+    <div id="resultsDetail" style="margin-top:14px"></div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="restartQuiz()" id="rTryAgain"></button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#app -->
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="t" id="modalTitle"></div>
+      <div class="s" id="modalSub"></div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" id="modalRemove" onclick="modalRemove()" style="display:none"></button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()" id="modalCancel"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ATL Tester — bilingual source data
+   Extracted from the PDF "ATL Skills & Subskills Question Stems - Upper Primary (ver 2)".
+   5 ATL categories, 31 subskills, 4–5 question stems per subskill.
+   Every user-facing string carries an English and a Chinese version. */
+
+const ATL_CATEGORIES = [
+  { id: "thinking",     en: "Thinking Skills",       zh: "思维技能",
+    blurbEn: "Analysing, creating and reflecting on ideas.",
+    blurbZh: "分析、创造想法并反思自己的想法。" },
+  { id: "social",       en: "Social Skills",          zh: "社交技能",
+    blurbEn: "Working with and understanding other people.",
+    blurbZh: "与人相处并理解他人。" },
+  { id: "self",         en: "Self-Management Skills", zh: "自我管理技能",
+    blurbEn: "Organising, staying safe and managing yourself.",
+    blurbZh: "组织安排、保持安全并管理自己。" },
+  { id: "communication",en: "Communication Skills",   zh: "沟通技能",
+    blurbEn: "Reading, writing, speaking and listening.",
+    blurbZh: "阅读、写作、口头表达与倾听。" },
+  { id: "research",     en: "Research Skills",        zh: "研究技能",
+    blurbEn: "Finding, recording and sharing information.",
+    blurbZh: "查找、记录并分享信息。" }
+];
+
+/* Distractor skills — plausible education-related skills, only 5 of the 20 are real IB ATLs */
+const DISTRACTOR_SKILLS = [
+  { id: "d01", en: "Curriculum Design", zh: "课程设计",
+    blurbEn: "Planning what to teach and why.", blurbZh: "规划教什么以及为什么教。" },
+  { id: "d02", en: "Assessment & Evaluation", zh: "评估与评价",
+    blurbEn: "Judging learning and improving practice.", blurbZh: "判断学习效果并改进教学。" },
+  { id: "d03", en: "Classroom Management", zh: "课堂管理",
+    blurbEn: "Keeping a class running smoothly.", blurbZh: "让课堂有序顺畅地进行。" },
+  { id: "d04", en: "Differentiation", zh: "差异化教学",
+    blurbEn: "Adapting teaching for different learners.", blurbZh: "针对不同学习者调整教学。" },
+  { id: "d05", en: "Literacy Instruction", zh: "读写教学",
+    blurbEn: "Teaching reading and writing.", blurbZh: "教阅读与写作。" },
+  { id: "d06", en: "Numeracy Instruction", zh: "算术教学",
+    blurbEn: "Teaching number and calculation.", blurbZh: "教数字与计算。" },
+  { id: "d07", en: "Digital Literacy", zh: "数字素养",
+    blurbEn: "Using technology safely and skilfully.", blurbZh: "安全且熟练地使用科技。" },
+  { id: "d08", en: "Scaffolding", zh: "教学脚手架",
+    blurbEn: "Breaking a task into manageable steps.", blurbZh: "把任务分解成可完成的小步骤。" },
+  { id: "d09", en: "Formative Feedback", zh: "形成性反馈",
+    blurbEn: "Giving comments that move learning forward.", blurbZh: "给出能推动学习前进的评语。" },
+  { id: "d10", en: "Behaviour Support", zh: "行为支持",
+    blurbEn: "Supporting pupils to self-regulate.", blurbZh: "帮助学生进行自我调节。" },
+  { id: "d11", en: "Multilingual Education", zh: "多语言教育",
+    blurbEn: "Teaching learners who speak many languages.", blurbZh: "为掌握多种语言的学习者授课。" },
+  { id: "d12", en: "Science Inquiry", zh: "科学探究",
+    blurbEn: "Questioning and investigating like a scientist.", blurbZh: "像科学家一样提问与探究。" },
+  { id: "d13", en: "Student Voice", zh: "学生话语权",
+    blurbEn: "Giving learners a say in their learning.", blurbZh: "让学习者在学习中有发言权。" },
+  { id: "d14", en: "Inclusive Practice", zh: "融合式教学",
+    blurbEn: "Making sure everyone can take part.", blurbZh: "确保每个人都能参与。" },
+  { id: "d15", en: "Home–School Partnership", zh: "家校合作",
+    blurbEn: "Working together with families.", blurbZh: "与家庭携手合作。" }
+];
+
+/* ── The 31 subskills with their question stems ─────────────────────────────
+   Each stem is { en, zh } — English and Chinese versions of the same stem. */
+const S = (en, zh) => ({ en, zh });
+
+const SUBSKILLS = [
+  /* ── THINKING SKILLS ── */
+  { id: "critical", cat: "thinking",
+    en: "Critical Thinking", zh: "批判性思维",
+    descEn: "Looking carefully at information and ideas", descZh: "仔细审视信息和观点",
+    stems: [
+      S("What do you notice about…?", "你注意到了什么……？"),
+      S("What makes you think that?", "你为什么会这样认为？"),
+      S("What evidence supports this idea?", "有什么证据支持这个想法？"),
+      S("Is there another way to think about this?", "还有别的思考方式吗？"),
+      S("Do you agree or disagree? Why?", "你同意还是不同意？为什么？"),
+      S("What is most important here?", "这里最重要的是什么？")
+    ]},
+  { id: "creative", cat: "thinking",
+    en: "Creative Thinking", zh: "创造性思维",
+    descEn: "Using imagination to make new ideas", descZh: "运用想象力创造新想法",
+    stems: [
+      S("What could happen if…?", "如果……会发生什么？"),
+      S("Can you think of a different idea?", "你能想出一个不同的主意吗？"),
+      S("How could you solve this in another way?", "你还能用别的方式解决它吗？"),
+      S("What would you change?", "你会做出什么改变？"),
+      S("Can you create something new from this?", "你能以此创作出新的东西吗？")
+    ]},
+  { id: "transfer", cat: "thinking",
+    en: "Transfer of Learning", zh: "学习迁移",
+    descEn: "Using what you already know in new situations", descZh: "把已有的知识运用到新情境中",
+    stems: [
+      S("How is this similar to something you already know?", "这和你已经知道的什么内容相似？"),
+      S("Where have you seen this before?", "你以前在哪里见过类似的情况？"),
+      S("How can you use this in a new situation?", "你能如何在新情境中运用它？"),
+      S("How does this connect to our previous learning?", "这与我们之前的学习有什么联系？")
+    ]},
+  { id: "reflection", cat: "thinking",
+    en: "Reflection & Metacognition", zh: "反思与元认知",
+    descEn: "Thinking about your own learning and how to improve", descZh: "思考自己的学习并加以改进",
+    stems: [
+      S("What did you learn from this?", "你从中学到了什么？"),
+      S("What helped you understand?", "什么帮助你理解了？"),
+      S("What was challenging for you?", "哪方面对你来说是挑战？"),
+      S("What would you do differently next time?", "下次你会做哪些不同？"),
+      S("How has your thinking changed?", "你的思考方式发生了怎样的改变？")
+    ]},
+
+  /* ── SOCIAL SKILLS ── */
+  { id: "interpersonal", cat: "social",
+    en: "Interpersonal Relationships", zh: "人际关系",
+    descEn: "Getting along with people", descZh: "与人友好相处",
+    stems: [
+      S("How can you show respect here?", "你可以如何表现尊重？"),
+      S("How can you include others?", "你可以如何接纳他人？"),
+      S("What would be a kind response?", "怎样才是友善的回应？"),
+      S("How can you work well with this person?", "你可以如何与此人良好合作？")
+    ]},
+  { id: "sei", cat: "social",
+    en: "Social & Emotional Intelligence", zh: "社会与情感智力",
+    descEn: "Understanding feelings – your own and others’", descZh: "理解感受——自己和别人的",
+    stems: [
+      S("How are you feeling right now?", "你现在感觉如何？"),
+      S("How do you think they feel?", "你觉得对方感觉如何？"),
+      S("Why might they feel that way?", "他们为什么会有这样的感受？"),
+      S("What can you do to respond respectfully?", "你可以如何作出尊重他人的回应？")
+    ]},
+  { id: "commgroups", cat: "social",
+    en: "Communication in Groups", zh: "小组沟通",
+    descEn: "Sharing ideas in teams", descZh: "在团队中分享想法",
+    stems: [
+      S("Can you explain your idea?", "你能解释一下你的想法吗？"),
+      S("What do you think about this idea?", "你对这个想法怎么看？"),
+      S("Can you add to that idea?", "你能为这个想法补充内容吗？"),
+      S("How can we share ideas clearly?", "我们如何清晰地分享想法？")
+    ]},
+  { id: "roles", cat: "social",
+    en: "Adopting Group Roles", zh: "承担小组角色",
+    descEn: "Leader, helper, listener when needed", descZh: "在需要时担任领导者、助手或倾听者",
+    stems: [
+      S("What role are you taking?", "你正在承担什么角色？"),
+      S("How can you support your group?", "你可以如何支持你的小组？"),
+      S("What does your group need right now?", "你的小组现在需要什么？"),
+      S("How can you be a good listener/leader/helper?", "你可以如何成为一名好的倾听者／领导者／助手？")
+    ]},
+  { id: "conflict", cat: "social",
+    en: "Resolving Conflict", zh: "化解冲突",
+    descEn: "Solving problems peacefully", descZh: "和平地解决问题",
+    stems: [
+      S("What is the problem?", "问题是什么？"),
+      S("How can we solve this calmly?", "我们如何冷静地解决它？"),
+      S("What would be a fair solution?", "怎样才是公平的解决方案？"),
+      S("How can we listen to both sides?", "我们如何听取双方的意见？")
+    ]},
+  { id: "consensus", cat: "social",
+    en: "Building Consensus", zh: "达成共识",
+    descEn: "Agreeing together as a group", descZh: "共同商定并达成一致",
+    stems: [
+      S("What ideas do we agree on?", "我们在哪些想法上意见一致？"),
+      S("How can we combine our ideas?", "我们如何把想法结合起来？"),
+      S("What works best for everyone?", "怎样对大家最好？"),
+      S("How can we make a group decision?", "我们如何作出小组决定？")
+    ]},
+
+  /* ── SELF-MANAGEMENT SKILLS ── */
+  { id: "organisation", cat: "self",
+    en: "Organisation", zh: "组织安排",
+    descEn: "Keeping materials and tasks in order", descZh: "让材料与任务井然有序",
+    stems: [
+      S("What do you need to get started?", "开始之前你需要什么？"),
+      S("How can you organise your work?", "你可以如何组织你的工作？"),
+      S("What is your next step?", "你的下一步是什么？"),
+      S("Is your work neat and clear?", "你的工作整洁清楚吗？")
+    ]},
+  { id: "time", cat: "self",
+    en: "Time Management", zh: "时间管理",
+    descEn: "Using time wisely to finish tasks", descZh: "善用时间完成任务",
+    stems: [
+      S("What should you do first?", "你应该先做什么？"),
+      S("How will you use your time?", "你打算如何使用时间？"),
+      S("How can you stay focused?", "你如何保持专注？"),
+      S("Are you using your time well?", "你用好了自己的时间吗？")
+    ]},
+  { id: "safety", cat: "self",
+    en: "Safety", zh: "安全",
+    descEn: "Keeping yourself and others safe", descZh: "保障自己和他人的安全",
+    stems: [
+      S("Is this a safe choice?", "这是安全的选择吗？"),
+      S("What could happen if you do this?", "如果你这样做会发生什么？"),
+      S("How can you keep others safe?", "你可以如何保障他人的安全？"),
+      S("What should you do in this situation?", "在这种情况下你该怎么做？")
+    ]},
+  { id: "healthy", cat: "self",
+    en: "Healthy Lifestyle", zh: "健康的生活方式",
+    descEn: "Making good choices for body and mind", descZh: "为身心的健康做出好选择",
+    stems: [
+      S("What is the best choice for your body?", "对你的身体来说，最好的选择是什么？"),
+      S("What do you need right now?", "你现在需要什么？"),
+      S("How can you take care of yourself?", "你可以如何照顾自己？"),
+      S("What will help you feel ready to learn?", "什么能让你准备好学习？")
+    ]},
+  { id: "codes", cat: "self",
+    en: "Codes of Behaviour", zh: "行为规范",
+    descEn: "Following rules and expectations", descZh: "遵守规则和期望",
+    stems: [
+      S("What is expected here?", "这里有什么要求？"),
+      S("Are you following the rules?", "你在遵守规则吗？"),
+      S("What should you be doing right now?", "你现在应该做什么？"),
+      S("Is this the right choice?", "这是正确的选择吗？")
+    ]},
+  { id: "stateofmind", cat: "self",
+    en: "Managing State of Mind", zh: "情绪管理",
+    descEn: "Controlling emotions and stress", descZh: "控制情绪与压力",
+    stems: [
+      S("How are you feeling?", "你感觉如何？"),
+      S("What can you do to calm down?", "你可以做什么让自己平静下来？"),
+      S("What strategy will help you?", "哪种策略会有帮助？"),
+      S("How can you respond calmly?", "你可以如何冷静地回应？")
+    ]},
+  { id: "mindfulness", cat: "self",
+    en: "Mindfulness", zh: "正念觉察",
+    descEn: "Being aware and calm in the moment", descZh: "专注当下并保持平静",
+    stems: [
+      S("What are you focusing on right now?", "你现在专注于什么？"),
+      S("What do you notice?", "你注意到了什么？"),
+      S("Can you slow down and think?", "你能慢下来想一想吗？"),
+      S("How can you stay calm?", "你可以如何保持平静？")
+    ]},
+  { id: "perseverance", cat: "self",
+    en: "Perseverance", zh: "坚持不懈",
+    descEn: "Not giving up when things are hard", descZh: "遇到困难时不放弃",
+    stems: [
+      S("What can you try next?", "你可以下一步尝试什么？"),
+      S("What will you do if it is difficult?", "如果有困难，你会怎么做？"),
+      S("How can you keep going?", "你可以如何坚持下去？"),
+      S("What did you learn from this challenge?", "你从这个挑战中学到了什么？")
+    ]},
+
+  /* ── COMMUNICATION SKILLS ── */
+  { id: "listening", cat: "communication",
+    en: "Listening", zh: "倾听",
+    descEn: "Paying attention to what others say", descZh: "认真听取他人说话",
+    stems: [
+      S("What did you hear?", "你听到了什么？"),
+      S("Can you repeat that in your own words?", "你能用自己的话复述一遍吗？"),
+      S("What is the speaker saying?", "发言者在说什么？"),
+      S("What is important to remember?", "什么内容是需要记住的？")
+    ]},
+  { id: "speaking", cat: "communication",
+    en: "Speaking", zh: "口头表达",
+    descEn: "Sharing ideas clearly with words", descZh: "用语言清晰地分享想法",
+    stems: [
+      S("What would you like to say?", "你想说什么？"),
+      S("How can you explain your idea clearly?", "你可以如何清晰地解释你的想法？"),
+      S("Can you say that in a better way?", "你能说得更好吗？"),
+      S("What is your main idea?", "你的核心想法是什么？")
+    ]},
+  { id: "reading", cat: "communication",
+    en: "Reading", zh: "阅读",
+    descEn: "Understanding written texts", descZh: "理解书面文本",
+    stems: [
+      S("What is this text about?", "这段文字讲的是什么？"),
+      S("What is the main idea?", "主要观点是什么？"),
+      S("What questions do you have?", "你有哪些疑问？"),
+      S("What does this part mean?", "这一部分是什么意思？")
+    ]},
+  { id: "writing", cat: "communication",
+    en: "Writing", zh: "写作",
+    descEn: "Expressing ideas in writing", descZh: "以书面形式表达想法",
+    stems: [
+      S("What is your main idea?", "你的核心想法是什么？"),
+      S("How will you organise your writing?", "你打算如何组织你的写作？"),
+      S("Does this make sense?", "这样说得通吗？"),
+      S("Did you check your work?", "你检查过自己的作品了吗？")
+    ]},
+  { id: "viewing", cat: "communication",
+    en: "Viewing", zh: "图像解读",
+    descEn: "Understanding pictures, charts or media", descZh: "理解图片、图表或媒体",
+    stems: [
+      S("What do you notice?", "你注意到了什么？"),
+      S("What does this show?", "这说明了什么？"),
+      S("What is the message?", "这里传递的信息是什么？"),
+      S("What can you learn from this?", "你能从中学到什么？")
+    ]},
+  { id: "presenting", cat: "communication",
+    en: "Presenting", zh: "展示",
+    descEn: "Showing information to an audience", descZh: "向观众呈现信息",
+    stems: [
+      S("How will you share your ideas?", "你打算如何分享你的想法？"),
+      S("How can you make this clear?", "你可以如何使它清晰明了？"),
+      S("What is important to include?", "哪些内容很重要、必须包含？"),
+      S("How will you engage your audience?", "你打算如何吸引你的听众？")
+    ]},
+  { id: "nonverbal", cat: "communication",
+    en: "Non-verbal Communication", zh: "非言语沟通",
+    descEn: "Using body language, gestures or facial expressions", descZh: "运用肢体语言、手势或面部表情",
+    stems: [
+      S("What does your body language show?", "你的肢体语言传达了什么？"),
+      S("Are you making eye contact?", "你有进行眼神交流吗？"),
+      S("What do you notice about others?", "你注意到了他人的哪些表现？"),
+      S("How can you show you are listening?", "你可以如何表明自己在倾听？")
+    ]},
+  { id: "questions", cat: "communication",
+    en: "Formulating Questions", zh: "提出好问题",
+    descEn: "Asking good questions to guide learning", descZh: "用提问来引导学习",
+    stems: [
+      S("What do you want to find out?", "你想弄清楚什么？"),
+      S("What questions can you ask?", "你可以提出哪些问题？"),
+      S("How will your question guide your learning?", "你的问题将如何引导你的学习？"),
+      S("What do you wonder about?", "你对什么感到好奇？")
+    ]},
+
+  /* ── RESEARCH SKILLS ── */
+  { id: "observing", cat: "research",
+    en: "Observing", zh: "观察",
+    descEn: "Noticing details carefully", descZh: "细致地留意细节",
+    stems: [
+      S("What do you notice?", "你注意到了什么？"),
+      S("What details can you see?", "你看到了哪些细节？"),
+      S("What is interesting or different?", "什么是有趣或与众不同的？"),
+      S("What do you observe closely?", "你仔细观察到了什么？")
+    ]},
+  { id: "planning", cat: "research",
+    en: "Planning & Collecting Data", zh: "规划与收集资料",
+    descEn: "Deciding how to get information", descZh: "决定如何获取信息",
+    stems: [
+      S("How will you find information?", "你打算如何查找信息？"),
+      S("What sources will you use?", "你会使用哪些资料来源？"),
+      S("What is your plan?", "你的计划是什么？"),
+      S("What information do you need?", "你需要哪些信息？")
+    ]},
+  { id: "recording", cat: "research",
+    en: "Recording & Organising Data", zh: "记录与整理数据",
+    descEn: "Keeping information neat and clear", descZh: "保持信息整洁清晰",
+    stems: [
+      S("How will you organise your information?", "你打算如何整理你的信息？"),
+      S("Where will you record your data?", "你会把数据记录在哪里？"),
+      S("How can you make it clear?", "你可以如何让它清晰易读？"),
+      S("Is your work neat and organised?", "你的记录整洁有序吗？")
+    ]},
+  { id: "interpreting", cat: "research",
+    en: "Interpreting Data", zh: "解读数据",
+    descEn: "Making sense of information collected", descZh: "理解所收集到的信息",
+    stems: [
+      S("What does this tell you?", "这告诉了你什么？"),
+      S("What patterns do you notice?", "你注意到了什么规律？"),
+      S("What does the data show?", "数据显示了什么？"),
+      S("What can you conclude?", "你可以得出什么结论？")
+    ]},
+  { id: "researchfindings", cat: "research",
+    en: "Presenting Research Findings", zh: "展示研究结果",
+    descEn: "Sharing what you discovered", descZh: "分享你的研究发现",
+    stems: [
+      S("What did you discover?", "你发现了什么？"),
+      S("How will you share your findings?", "你打算如何分享你的发现？"),
+      S("What is most important to show?", "展示时最重要的是什么？"),
+      S("How can you explain your learning clearly?", "你可以如何清晰地讲解你的学习？")
+    ]}
+];
+
+const CAT_BY_ID  = Object.fromEntries(ATL_CATEGORIES.map(c => [c.id, c]));
+const SUB_BY_ID  = Object.fromEntries(SUBSKILLS.map(s => [s.id, s]));
+
+/* ATL Tester — UI strings (English / 简体中文)
+   t('key') returns the string for the active language. */
+
+const STRINGS = {
+  en: {
+    langName: "English",
+    siteTitle: "IB ATL Skills Tester",
+    siteSubtitle: "Test your knowledge of the IB Approaches to Learning",
+    switchTo: "中文",
+    switchAria: "Switch to Chinese",
+
+    /* Stage 1 */
+    s1Badge: "Stage 1 of 3",
+    s1Title: "Identify the 5 IB ATL Skills",
+    s1Intro: "The IB has exactly five Approaches to Learning (ATLs). They are listed below alongside 15 other education-related skills that are NOT ATLs. Pick the five that are.",
+    s1Hint: "20 options — only 5 are correct. Select five to continue.",
+    s1Counter: "selected",
+    s1Continue: "Continue to Stage 2 →",
+    s1WrongTitle: "Not quite!",
+    s1WrongBody: "Some of the skills you chose are NOT official IB Approaches to Learning.\n\nThe five ATLs are:\n• Thinking Skills\n• Social Skills\n• Self-Management Skills\n• Communication Skills\n• Research Skills\n\nPlease try again.",
+    s1WrongTitleZhNote: "",
+
+    /* Stage 2 */
+    s2Badge: "Stage 2 of 3",
+    s2Title: "Match each Subskill to its ATL",
+    s2Intro: "Every subskill belongs to exactly one of the five ATLs. Your job is to sort them: click a subskill on the left, then choose its ATL from the pop-up menu. The subskill will move into that ATL box automatically.",
+    s2PanelTitle: "All subskills",
+    s2PanelSub: "Click any subskill to place it",
+    s2BoxHint: "Click a subskill here to move it",
+    s2NotPlaced: "Not placed",
+    s2StatusFmt: "{placed} / {total} placed",
+    s2Check: "✓ Check answers",
+    s2Reset: "↺ Reset",
+    s2Back: "← Back",
+    s2Continue: "Continue to Stage 3 →",
+    s2CheckTitle: "Check answers",
+    s2CheckBody: "You placed {correct} of {total} correctly.",
+    s2CheckAllRight: "All correct — brilliant!",
+    s2CheckFix: "{wrong} marked in red. Click a red subskill and choose the right ATL to fix it — mistakes stay red until you correct them.",
+    s2CheckEmpty: "Place some subskills first.",
+    s2BelongsIn: "belongs in: {cat}",
+    s2Correct: "✓ correct",
+
+    /* Stage 3 */
+    s3Badge: "Stage 3 of 3",
+    s3Title: "Identify each stem cluster",
+    s3Intro: "Each card shows a cluster of question stems taken from ONE subskill. Decide which ATL the cluster belongs to, then which subskill it comes from. You get instant feedback — if you get it wrong, you can try that cluster again.",
+    s3Step1: "Step 1 — Which ATL skill does this cluster belong to?",
+    s3Step2: "Step 2 — Which subskill?",
+    s3ClusterLabel: "Question stem cluster ({n} stems)",
+    s3Of: "of {n} clusters",
+    s3Next: "Next →",
+    s3Prev: "← Previous",
+    s3Finish: "Finish 🏆",
+    s3CorrectTitle: "✓ Correct!",
+    s3CorrectBody: "This cluster is from the subskill “{sub}” in {cat}.",
+    s3WrongTitle: "✗ Not quite — try again",
+    s3WrongAtl: "That ATL is not right for this cluster. Choose another ATL.",
+    s3WrongSub: "“{sub}” is not the right subskill. Look at the stems again and pick another one.",
+    s3WrongBoth: "Not this ATL or subskill. Try again — read each stem carefully.",
+    s3AllAnswered: "All clusters answered — click “See Results”.",
+    s3PickFirst: "First choose an ATL.",
+
+    /* Results */
+    rTitle: "Your Results",
+    rScore: "Your Final Score",
+    rAtl: "ATL identified",
+    rSub: "Subskill identified",
+    rTableStem: "Stem cluster",
+    rYourAtl: "Your ATL",
+    rCorrectAtl: "Correct ATL",
+    rYourSub: "Your Subskill",
+    rCorrectSub: "Correct Subskill",
+    rTryAgain: "🔄 Try Again",
+    rScored: "{n} of {total} clusters correct",
+    rFirstTry: "First-try correct",
+    rRetries: "needed a retry",
+
+    /* Modal */
+    mTitle: "Choose the ATL",
+    mSub: "Which ATL does this subskill belong to?",
+    mCancel: "Cancel",
+    mRemove: "Remove",
+
+    /* Common */
+    cBack: "← Back"
+  },
+
+  zh: {
+    langName: "简体中文",
+    siteTitle: "IB ATL 技能测试",
+    siteSubtitle: "测试你对 IB 学习方法（ATL）的掌握情况",
+    switchTo: "English",
+    switchAria: "切换为英文",
+
+    /* Stage 1 */
+    s1Badge: "第 1 步，共 3 步",
+    s1Title: "找出 5 项 IB ATL 技能",
+    s1Intro: "IB 官方只有五种学习方法（ATLs）。它们与另外 15 项与教育相关的技能一起列在下面，但那 15 项并不是 ATL。请选出真正的五项。",
+    s1Hint: "共 20 个选项，只有 5 个正确。选满五项即可继续。",
+    s1Counter: "已选",
+    s1Continue: "进入第 2 步 →",
+    s1WrongTitle: "还不太对！",
+    s1WrongBody: "你选择的部分技能并不是 IB 官方的学习方法。\n\n五种 ATL 是：\n• 思维技能\n• 社交技能\n• 自我管理技能\n• 沟通技能\n• 研究技能\n\n请再试一次。",
+
+    /* Stage 2 */
+    s2Badge: "第 2 步，共 3 步",
+    s2Title: "把每个子技能归入对应的 ATL",
+    s2Intro: "每个子技能都只属于五项 ATL 中的一项。请进行分类：点击左侧任意子技能，在弹出的菜单中选择它所属的 ATL，子技能就会自动进入对应的方框。",
+    s2PanelTitle: "全部子技能",
+    s2PanelSub: "点击任意子技能进行归类",
+    s2BoxHint: "点击此处的子技能可移动它",
+    s2NotPlaced: "未归类",
+    s2StatusFmt: "已归类 {placed} / {total}",
+    s2Check: "✓ 检查答案",
+    s2Reset: "↺ 重置",
+    s2Back: "← 上一步",
+    s2Continue: "进入第 3 步 →",
+    s2CheckTitle: "检查答案",
+    s2CheckBody: "你归对了 {correct} 项，共 {total} 项。",
+    s2CheckAllRight: "全部正确，太棒了！",
+    s2CheckFix: "有 {wrong} 项标为红色。点击红色的子技能并选择正确的 ATL 即可订正——在改对之前会一直保持红色。",
+    s2CheckEmpty: "请先归类一些子技能。",
+    s2BelongsIn: "应属于：{cat}",
+    s2Correct: "✓ 正确",
+
+    /* Stage 3 */
+    s3Badge: "第 3 步，共 3 步",
+    s3Title: "辨认每组问题语",
+    s3Intro: "每张卡片显示的是取自某一个子技能的一组问题语。请判断这组问题语属于哪一项 ATL，再判断它出自哪个子技能。作答后会立即反馈——答错可以重新作答。",
+    s3Step1: "第一步 —— 这组问题语属于哪一项 ATL？",
+    s3Step2: "第二步 —— 属于哪个子技能？",
+    s3ClusterLabel: "问题语组（共 {n} 条）",
+    s3Of: "共 {n} 组",
+    s3Next: "下一组 →",
+    s3Prev: "← 上一组",
+    s3Finish: "完成 🏆",
+    s3CorrectTitle: "✓ 回答正确！",
+    s3CorrectBody: "这组问题语出自「{sub}」，属于{cat}。",
+    s3WrongTitle: "✗ 还不对 —— 再试一次",
+    s3WrongAtl: "这组问题语并不属于该 ATL，请另选一个。",
+    s3WrongSub: "「{sub}」不是正确的子技能。请再读一遍问题语，重新选择。",
+    s3WrongBoth: "ATL 和子技能都不对。再试一次——请仔细阅读每一条问题语。",
+    s3AllAnswered: "所有问题语组都已作答——点击「查看结果」。",
+    s3PickFirst: "请先选择一项 ATL。",
+
+    /* Results */
+    rTitle: "测试结果",
+    rScore: "你的最终得分",
+    rAtl: "ATL 答对",
+    rSub: "子技能答对",
+    rTableStem: "问题语组",
+    rYourAtl: "你的 ATL",
+    rCorrectAtl: "正确 ATL",
+    rYourSub: "你的子技能",
+    rCorrectSub: "正确子技能",
+    rTryAgain: "🔄 再测一次",
+    rScored: "答对 {n} / {total} 组",
+    rFirstTry: "首次答对",
+    rRetries: "需要重试",
+
+    /* Modal */
+    mTitle: "选择所属的 ATL",
+    mSub: "这个子技能属于哪一项 ATL？",
+    mCancel: "取消",
+    mRemove: "移除",
+
+    /* Common */
+    cBack: "← 上一步"
+  }
+};
+
+let LANG = "en";
+function t(key) {
+  const pack = STRINGS[LANG];
+  return (pack && pack[key] !== undefined) ? pack[key] : (STRINGS.en[key] || key);
+}
+/** Fill in {placeholder} tokens */
+function tf(key, vars) {
+  let s = t(key);
+  Object.keys(vars || {}).forEach(k => { s = s.replace(new RegExp('\\{' + k + '\\}', 'g'), vars[k]); });
+  return s;
+}
+/** Localised text for a category */
+function catName(cat){ return LANG === "zh" ? cat.zh : cat.en; }
+function catBlurb(cat){ return LANG === "zh" ? cat.blurbZh : cat.blurbEn; }
+/** Localised text for a subskill */
+function subName(sub){ return LANG === "zh" ? sub.zh : sub.en; }
+function subDesc(sub){ return LANG === "zh" ? sub.descZh : sub.descEn; }
+/** Localised text for a stem */
+function stemText(stem){ return LANG === "zh" ? stem.zh : stem.en; }
+/** Localised name for a distractor skill */
+function skillName(s){ return LANG === "zh" ? s.zh : s.en; }
+function skillBlurb(s){ return LANG === "zh" ? s.blurbZh : s.blurbEn; }
+
+</script>
+<script>
+/* ================================================================
+   STATE
+   ================================================================ */
+let state = {
+  stage: 1,
+  selectedATLs: new Set(),
+  placements: {},
+  subOrder: [],
+  checked: false,
+  quizAnswers: [],
+  quizIndex: 0,
+  questions: []
+};
+let modalSubId = null;
+
+/* ================================================================
+   UTILS
+   ================================================================ */
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function $(s){return document.querySelector(s);}
+function activeSubs(){ return SUBSKILLS.filter(s => state.selectedATLs.has(s.cat)); }
+function activeCats(){ return ATL_CATEGORIES.filter(c => state.selectedATLs.has(c.id)); }
+
+const CAT_COLOR = {
+  thinking:'#8e44ad', social:'#e67e22', self:'#27ae60',
+  communication:'#2980b9', research:'#c0392b'
+};
+
+/* ================================================================
+   LANGUAGE
+   ================================================================ */
+function applyStaticText(){
+  document.documentElement.lang = LANG;
+  $('#siteTitle').textContent   = t('siteTitle');
+  $('#siteSubtitle').textContent= t('siteSubtitle');
+  $('#langBtn').textContent     = t('switchTo');
+  $('#langBtn').setAttribute('aria-label', t('switchAria'));
+
+  $('#s1Badge').textContent=t('s1Badge'); $('#s1Title').textContent=t('s1Title');
+  $('#s1Intro').textContent=t('s1Intro'); $('#s1Hint').textContent=t('s1Hint');
+  $('#s1CounterWord').textContent=t('s1Counter');
+  $('#s1Next').textContent=t('s1Continue');
+
+  $('#s2Badge').textContent=t('s2Badge'); $('#s2Title').textContent=t('s2Title');
+  $('#s2Intro').textContent=t('s2Intro');
+  $('#s2PanelTitle').textContent=t('s2PanelTitle'); $('#s2PanelSub').textContent=t('s2PanelSub');
+  $('#s2Back').textContent=t('s2Back'); $('#s2Check').textContent=t('s2Check');
+  $('#s2Reset').textContent=t('s2Reset'); $('#s2Next').textContent=t('s2Continue');
+
+  $('#s3Badge').textContent=t('s3Badge'); $('#s3Title').textContent=t('s3Title');
+  $('#s3Intro').textContent=t('s3Intro');
+  $('#s3Back').textContent=t('s2Back'); $('#s3Results').textContent=t('rTitle');
+
+  $('#rScoreLabel').textContent=t('rScore'); $('#rTryAgain').textContent=t('rTryAgain');
+  $('#modalTitle').textContent=t('mTitle'); $('#modalSub').textContent=t('mSub');
+  $('#modalCancel').textContent=t('mCancel'); $('#modalRemove').textContent=t('mRemove');
+}
+
+function toggleLang(){
+  LANG = (LANG === 'en') ? 'zh' : 'en';
+  try { localStorage.setItem('atl-lang', LANG); } catch(e){}
+  applyStaticText();
+  rerenderCurrentStage();
+}
+
+function rerenderCurrentStage(){
+  const s = state.stage;
+  if(s === 1) initStage1();
+  else if(s === 2){ renderStage2(); }
+  else if(s === 3){ renderQuestion(); }
+  else { showResults(true); }
+}
+
+/* ================================================================
+   STAGE 1
+   ================================================================ */
+function initStage1(){
+  const all = [
+    ...ATL_CATEGORIES.map(c => ({...c, isReal:true})),
+    ...DISTRACTOR_SKILLS.map(d => ({...d, isReal:false}))
+  ];
+  state.selectedATLs = new Set();
+  const grid = $('#s1Grid'); grid.innerHTML='';
+  shuffle(all).forEach(item => {
+    const el = document.createElement('div');
+    el.className='s1-card'; el.dataset.id=item.id;
+    el.innerHTML = `<div class="name">${skillName(item)}</div><div class="blurb">${skillBlurb(item)}</div>`;
+    el.onclick = () => toggleS1(el, item.id);
+    grid.appendChild(el);
+  });
+  updateS1UI();
+}
+
+function toggleS1(el, id){
+  if(state.selectedATLs.has(id)){ state.selectedATLs.delete(id); el.classList.remove('selected'); }
+  else if(state.selectedATLs.size < 5){ state.selectedATLs.add(id); el.classList.add('selected'); }
+  updateS1UI();
+}
+
+function updateS1UI(){
+  $('#s1Count').textContent = state.selectedATLs.size;
+  $('#s1Next').disabled = state.selectedATLs.size !== 5;
+}
+
+/* ================================================================
+   STAGE 2 — click a subskill → pop-up menu of the 5 ATLs
+   ================================================================ */
+function initStage2(){
+  state.placements = {}; state.checked = false;
+
+  state.subOrder = shuffle(activeSubs().map(s => s.id));
+  const list = $('#s2List'); list.innerHTML='';
+  state.subOrder.forEach(id => {
+    const sub = SUB_BY_ID[id];
+    const row = document.createElement('div');
+    row.className='ss-row'; row.dataset.subId=sub.id;
+    row.innerHTML = `<div class="ss-name">${subName(sub)}<span class="ss-desc">${subDesc(sub)}</span></div>
+                     <span class="ss-none">${t('s2NotPlaced')}</span>`;
+    row.onclick = () => openModal(sub.id);
+    list.appendChild(row);
+  });
+
+  const boxes = $('#s2Boxes'); boxes.innerHTML='';
+  activeCats().forEach(cat => {
+    const box = document.createElement('div');
+    box.className='s2-box';
+    box.innerHTML = `<div class="s2-box-head">
+        <span class="s2-box-badge badge-${cat.id}">${catName(cat)}</span>
+        <span class="s2-box-count" data-count="${cat.id}">0</span>
+      </div>
+      <div class="s2-box-chips" data-box="${cat.id}"></div>`;
+    box.querySelector('.s2-box-chips').onclick = e => {
+      const chip = e.target.closest('.chip');
+      if(chip) openModal(chip.dataset.subId);
+    };
+    boxes.appendChild(box);
+  });
+
+  renderStage2();
+}
+
+function openModal(subId){
+  const sub = SUB_BY_ID[subId];
+  modalSubId = subId;
+  $('#modalTitle').textContent = subName(sub);
+  $('#modalSub').textContent = subDesc(sub);
+
+  const body = $('#modalBody'); body.innerHTML='';
+  activeCats().forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'modal-opt' + (state.placements[subId] === c.id ? ' current' : '');
+    b.innerHTML = `<span class="dot" style="background:${CAT_COLOR[c.id]}"></span>
+                   <span><strong>${catName(c)}</strong><span class="bl">${catBlurb(c)}</span></span>`;
+    b.onclick = () => { placeSub(subId, c.id); closeModal(); };
+    body.appendChild(b);
+  });
+
+  $('#modalRemove').style.display = state.placements[subId] ? 'inline-flex' : 'none';
+  $('#modalOverlay').classList.add('open');
+}
+
+function closeModal(){ $('#modalOverlay').classList.remove('open'); modalSubId=null; }
+function modalRemove(){ if(modalSubId) placeSub(modalSubId, null); closeModal(); }
+
+function placeSub(subId, atlId){
+  if(atlId === null){ delete state.placements[subId]; }
+  else { state.placements[subId] = atlId; }
+  // state.checked is deliberately NOT reset: mistakes stay red until corrected.
+  renderStage2();
+}
+
+function renderStage2(){
+  // Left rows
+  document.querySelectorAll('#s2List .ss-row').forEach(row => {
+    const id = row.dataset.subId;
+    const atl = state.placements[id];
+    row.classList.toggle('placed', !!atl);
+    const wrong = state.checked && atl && SUB_BY_ID[id].cat !== atl;
+    row.classList.toggle('wrong-row', wrong);
+    if(atl){
+      if(!row.querySelector('.ss-where')){
+        const s = document.createElement('span'); s.className='ss-where';
+        row.replaceChild(s, row.querySelector('.ss-none'));
+      }
+      const tag = row.querySelector('.ss-where');
+      tag.textContent = catName(CAT_BY_ID[atl]);
+      tag.style.background = CAT_COLOR[atl];
+    } else {
+      const s = document.createElement('span'); s.className='ss-none'; s.textContent=t('s2NotPlaced');
+      if(row.querySelector('.ss-where')) row.replaceChild(s, row.querySelector('.ss-where'));
+    }
+  });
+
+  // Boxes
+  activeCats().forEach(cat => {
+    const holder = document.querySelector(`.s2-box-chips[data-box="${cat.id}"]`);
+    holder.innerHTML = '';
+    const items = Object.entries(state.placements).filter(([,v]) => v === cat.id).map(([k]) => SUB_BY_ID[k]);
+    if(!items.length){
+      holder.innerHTML = `<div class="empty-hint">${t('s2BoxHint')}</div>`;
+    } else {
+      items.forEach(sub => {
+        const chip = document.createElement('div');
+        chip.className='chip'; chip.dataset.subId=sub.id;
+        if(state.checked){
+          const isRight = sub.cat === cat.id;
+          chip.classList.add(isRight ? 'ok' : 'bad');
+          chip.innerHTML = isRight
+            ? `${subName(sub)}<span class="desc">${t('s2Correct')}</span>`
+            : `${subName(sub)}<span class="desc">✗ ${tf('s2BelongsIn',{cat:catName(CAT_BY_ID[sub.cat])})}</span>`;
+        } else {
+          chip.innerHTML = `${subName(sub)}<span class="desc">${subDesc(sub)}</span>`;
+        }
+        holder.appendChild(chip);
+      });
+    }
+    const cnt = document.querySelector(`.s2-box-count[data-count="${cat.id}"]`);
+    if(cnt) cnt.textContent = items.length;
+  });
+
+  updateS2UI();
+}
+
+function updateS2UI(){
+  const total = activeSubs().length;
+  const placed = Object.keys(state.placements).length;
+  const status = document.getElementById('s2Status');
+  if(status) status.textContent = tf('s2StatusFmt',{placed, total});
+  $('#s2Next').disabled = placed !== total;
+}
+
+function checkStage2(){
+  if(!Object.keys(state.placements).length){ alert(t('s2CheckEmpty')); return; }
+  state.checked = true;
+  renderStage2();
+  const correct = Object.entries(state.placements).filter(([k,v]) => SUB_BY_ID[k].cat === v).length;
+  const total = Object.keys(state.placements).length;
+  const wrong = total - correct;
+  let msg = tf('s2CheckBody',{correct, total});
+  msg += '\n\n' + (wrong ? tf('s2CheckFix',{wrong}) : t('s2CheckAllRight'));
+  alert(msg);
+}
+
+function resetStage2(){ state.placements = {}; state.checked = false; renderStage2(); }
+
+/* ================================================================
+   STAGE 3 — cluster quiz with instant feedback + retry
+   ================================================================ */
+function initStage3(){
+  state.questions = []; state.quizAnswers = []; state.quizIndex = 0;
+  activeSubs().forEach(sub => {
+    state.questions.push({
+      stems: [...sub.stems],
+      correctAtl: sub.cat,
+      correctSub: sub.id
+    });
+  });
+  state.questions = shuffle(state.questions);
+  $('#quizNav').style.display = 'none';
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const q = state.questions[state.quizIndex];
+  if(!q){ showResults(); return; }
+  const cats = activeCats();
+  const stemList = q.stems.map((s,i) =>
+    `<li class="cluster-stem"><span class="cluster-num">${i+1}</span><span>${stemText(s)}</span></li>`).join('');
+
+  $('#quizContainer').innerHTML = `
+    <div class="quiz-progress">
+      <span class="quiz-q-num">${state.quizIndex+1}</span>
+      <span>${tf('s3Of',{n:state.questions.length})}</span>
+    </div>
+    <div class="quiz-stem">
+      <div class="quiz-label">${tf('s3ClusterLabel',{n:q.stems.length})}</div>
+      <ul class="cluster-list">${stemList}</ul>
+    </div>
+    <div id="qfBox"></div>
+    <div class="quiz-label">${t('s3Step1')}</div>
+    <div class="quiz-options" id="atlOptions"></div>
+    <div class="quiz-label" id="subLabel" style="display:none">${t('s3Step2')}</div>
+    <div class="quiz-options quiz-sub-options" id="subOptions" style="display:none"></div>
+    <div class="quiz-nav">
+      ${state.quizIndex>0?`<button class="btn btn-outline" onclick="prevQuestion()">${t('s3Prev')}</button>`:''}
+      <button class="btn btn-primary" id="qNextBtn" onclick="nextQuestion()" disabled>${state.quizIndex===state.questions.length-1?t('s3Finish'):t('s3Next')}</button>
+    </div>`;
+
+  const atlOpts = $('#atlOptions');
+  cats.forEach(c => {
+    const o = document.createElement('div');
+    o.className='quiz-opt'; o.dataset.val=c.id; o.textContent=catName(c);
+    o.onclick = () => selectATL(o, c.id, q);
+    atlOpts.appendChild(o);
+  });
+
+  const prev = state.quizAnswers[state.quizIndex];
+  if(prev){
+    const ao = document.querySelector(`#atlOptions [data-val="${prev.atlId}"]`);
+    if(ao) selectATL(ao, prev.atlId, q, prev.subId, true);
+  }
+}
+
+/* Step 1 — pick the ATL */
+function selectATL(opt, atlId, q, preSub, restoring){
+  const answer = state.quizAnswers[state.quizIndex];
+  if(answer && answer.solved) return;              // already solved — locked
+  document.querySelectorAll('#atlOptions .quiz-opt').forEach(o => o.classList.remove('selected-atl','correct','wrong'));
+  opt.classList.add('selected-atl');
+
+  const subs = SUBSKILLS.filter(s => s.cat === atlId && state.selectedATLs.has(s.cat));
+  const sc = $('#subOptions'); sc.innerHTML=''; sc.style.display='';
+  $('#subLabel').style.display='';
+  subs.forEach(s => {
+    const o = document.createElement('div');
+    o.className='quiz-opt'; o.dataset.val=s.id;
+    o.textContent = `${subName(s)} — ${subDesc(s)}`;
+    o.onclick = () => selectSub(o, s.id, q, atlId);
+    sc.appendChild(o);
+  });
+
+  state.quizAnswers[state.quizIndex] = {
+    atlId, subId:null, stems:q.stems, correctAtl:q.correctAtl, correctSub:q.correctSub,
+    attempts:(answer ? answer.attempts : 0), solved:false, firstTry:false
+  };
+  $('#qNextBtn').disabled = true;
+  clearFeedback();
+
+  if(preSub){
+    const so = document.querySelector(`#subOptions [data-val="${preSub}"]`);
+    if(so) selectSub(so, preSub, q, atlId, restoring);
+  }
+}
+
+/* Step 2 — pick the subskill → instant feedback */
+function selectSub(opt, subId, q, atlId, restoring){
+  const answer = state.quizAnswers[state.quizIndex];
+  if(answer && answer.solved) return;
+
+  document.querySelectorAll('#subOptions .quiz-opt').forEach(o => o.classList.remove('selected-sub','correct','wrong'));
+  opt.classList.add('selected-sub');
+
+  answer.atlId = atlId; answer.subId = subId;
+  answer.attempts = (answer.attempts || 0) + 1;
+
+  const atlOk = (atlId === q.correctAtl);
+  const subOk = (subId === q.correctSub);
+
+  if(atlOk && subOk){
+    /* ── CORRECT ── */
+    answer.solved = true;
+    answer.firstTry = (answer.attempts === 1);
+    opt.classList.remove('selected-sub'); opt.classList.add('correct');
+    const ao = document.querySelector(`#atlOptions [data-val="${atlId}"]`);
+    if(ao){ ao.classList.remove('selected-atl'); ao.classList.add('correct'); }
+    document.querySelectorAll('#atlOptions .quiz-opt, #subOptions .quiz-opt').forEach(o => o.classList.add('locked'));
+    $('#qNextBtn').disabled = false;
+    showFeedback('good', '✓', t('s3CorrectTitle'),
+      tf('s3CorrectBody',{ sub: subName(SUB_BY_ID[q.correctSub]), cat: catName(CAT_BY_ID[q.correctAtl]) }));
+  } else {
+    /* ── WRONG — allow retry on this same cluster ── */
+    opt.classList.remove('selected-sub'); opt.classList.add('wrong');
+    const ao = document.querySelector(`#atlOptions [data-val="${atlId}"]`);
+    if(ao && !atlOk) ao.classList.add('wrong');
+    let body;
+    if(!atlOk && !subOk) body = t('s3WrongBoth');
+    else if(!atlOk)      body = t('s3WrongAtl');
+    else                 body = tf('s3WrongSub',{ sub: subName(SUB_BY_ID[subId]) });
+    showFeedback('bad', '✗', t('s3WrongTitle'), body);
+    // Allow the ATL to be changed again on retry
+    const ao2 = document.querySelector(`#atlOptions [data-val="${atlId}"]`);
+    if(ao2){ ao2.classList.remove('wrong','selected-atl'); }
+    $('#qNextBtn').disabled = true;
+  }
+}
+
+function showFeedback(kind, icon, title, body){
+  const box = $('#qfBox');
+  if(!box) return;
+  box.innerHTML = `<div class="qf ${kind}"><span class="qi">${icon}</span>
+    <span><span class="qf-title">${title}</span>${body}</span></div>`;
+}
+function clearFeedback(){ const b = $('#qfBox'); if(b) b.innerHTML=''; }
+
+function nextQuestion(){
+  state.quizIndex++;
+  if(state.quizIndex >= state.questions.length){
+    $('#quizNav').style.display = 'flex';
+    $('#quizContainer').insertAdjacentHTML('beforeend',
+      `<div class="qf info"><span class="qi">ℹ️</span><span>${t('s3AllAnswered')}</span></div>`);
+    return;
+  }
+  renderQuestion();
+}
+
+function prevQuestion(){ if(state.quizIndex>0){ state.quizIndex--; renderQuestion(); } }
+
+/* ================================================================
+   RESULTS
+   ================================================================ */
+function showResults(silent){
+  if(!silent){ switchStage('stageResults'); updateProgress(3); }
+
+  let atlOK=0, subOK=0, firstTry=0;
+  const total = state.quizAnswers.length;
+  state.quizAnswers.forEach(a => {
+    if(a.atlId===a.correctAtl) atlOK++;
+    if(a.subId===a.correctSub) subOK++;
+    if(a.firstTry) firstTry++;
+  });
+
+  // Headline score = first-try accuracy (retries are shown separately)
+  const pct = total ? Math.round((firstTry/total)*100) : 0;
+  $('#finalScore').textContent = pct + '%';
+  $('#scoreBreakdown').innerHTML = `
+    <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:.87rem">
+      <span>🎯 ${t('rAtl')}: <strong>${atlOK}/${total}</strong></span>
+      <span>📌 ${t('rSub')}: <strong>${subOK}/${total}</strong></span>
+    </div>
+    <div class="attempts">${t('rFirstTry')}: <strong>${firstTry}/${total}</strong> · ${t('rRetries')}: <strong>${total-firstTry}</strong></div>`;
+
+  let html = `<table class="results-table"><tr><th>#</th><th>${t('rTableStem')}</th>
+    <th>${t('rYourAtl')}</th><th>${t('rCorrectAtl')}</th><th>${t('rYourSub')}</th><th>${t('rCorrectSub')}</th></tr>`;
+  state.quizAnswers.forEach((a,i) => {
+    const rc = (a.atlId===a.correctAtl && a.subId===a.correctSub) ? 'correct-row' : 'wrong-row';
+    const cluster = (a.stems||[]).map(s => `<em>“${stemText(s)}”</em>`).join('<br>');
+    html += `<tr class="${rc}"><td>${i+1}</td><td>${cluster}</td>
+      <td>${a.atlId ? catName(CAT_BY_ID[a.atlId]) : '?'}</td>
+      <td><strong>${catName(CAT_BY_ID[a.correctAtl])}</strong></td>
+      <td>${a.subId ? subName(SUB_BY_ID[a.subId]) : '?'}</td>
+      <td><strong>${subName(SUB_BY_ID[a.correctSub])}</strong></td></tr>`;
+  });
+  html += '</table>';
+  $('#resultsDetail').innerHTML = html;
+}
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+function goStage1(){ switchStage('stage1'); updateProgress(0); }
+
+function goStage2(){
+  const realIds = new Set(ATL_CATEGORIES.map(c=>c.id));
+  const wrong = [...state.selectedATLs].filter(id => !realIds.has(id));
+  if(wrong.length){
+    alert(t('s1WrongTitle') + '\n\n' + t('s1WrongBody'));
+    return;
+  }
+  switchStage('stage2'); updateProgress(1); initStage2();
+}
+
+function goStage3(){
+  if(Object.keys(state.placements).length !== activeSubs().length){ alert(t('s2CheckEmpty')); return; }
+  switchStage('stage3'); updateProgress(2); initStage3();
+}
+
+function switchStage(id){
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  state.stage = parseInt(id.replace('stage','')) || (id === 'stageResults' ? 4 : 1);
+}
+
+function updateProgress(a){
+  [1,2,3].forEach(i=>{ const d=document.getElementById('dot'+i); d.classList.remove('current','done');
+    if(i-1<a) d.classList.add('done'); else if(i-1===a) d.classList.add('current'); });
+}
+
+function restartQuiz(){
+  state = { stage:1, selectedATLs:new Set(), placements:{}, subOrder:[], checked:false, quizAnswers:[], quizIndex:0, questions:[] };
+  initStage1(); switchStage('stage1'); updateProgress(0);
+}
+
+/* ================================================================
+   BOOT
+   ================================================================ */
+try { LANG = localStorage.getItem('atl-lang') || 'en'; } catch(e){ LANG = 'en'; }
+applyStaticText();
+initStage1();
+</script>
+</body>
+</html>
