@@ -1,35 +1,64 @@
-# IB ATL Skills Tester — Test your knowledge of the IB Approaches to Learning
+# 🧠 IB ATL Skills Tester
 
-A three-stage self-check for teachers:
+**A bilingual (English / 简体中文) self-check for teachers on the IB Approaches to Learning.**
 
-1. **Identify the 5 IB ATL skills** — pick them from a list of 20 education-related options (15 are decoys).
-2. **Match each subskill to its ATL** — 31 subskills, shuffled so same-ATL items aren't clustered. Click a subskill → choose its ATL from the pop-up menu. Use "Check answers" to mark mistakes; mistakes stay red until you fix them.
-3. **Identify each stem cluster** — 31 cards, each showing the full cluster of 4–5 question stems from one subskill. Choose the ATL, then the subskill. You get instant right/wrong feedback and can retry any cluster.
-
-The score is **first-try accuracy**; retries are reported separately.
-
-Fully bilingual — English / 简体中文 (toggle top-right).
+🌐 **Live site:** https://dannyenglish.github.io/atl-tester/
 
 ---
 
-## Option A — Share the single file (easiest)
+## What it does
 
-`atl-tester.html` is completely self-contained. Double-click it, or email/upload it to
-Google Drive, OneDrive, Dropbox, Canvas, etc. It needs no internet and no installation.
+Three stages that mirror how the ATL document is actually organised:
 
-## Option B — Host it free (share a link)
+### Stage 1 — Identify the 5 IB ATL skills
+The IB has exactly **five** Approaches to Learning. They are mixed in with **15 other
+education-related skills** that are *not* ATLs (Curriculum Design, Classroom Management,
+Scaffolding, …). Pick the five real ones.
 
-The `index.html` + `data.js` + `i18n.js` files are a plain static site.
+### Stage 2 — Match each subskill to its ATL
+All **31 subskills** are listed on the left, **shuffled** so that subskills from the same ATL
+aren't clustered together. Click a subskill → choose its ATL from the pop-up menu → it moves
+into that box automatically.
 
-**Netlify Drop** — go to https://app.netlify.com/drop and drag the whole folder in. You get a public
-URL immediately.
+Press **✓ Check answers** to mark mistakes. Mistakes **stay red until you fix them**, so you can
+work through your errors one at a time.
 
-**GitHub Pages** — push the folder to a repo, then Settings → Pages → Deploy from branch → `main` / `/`.
+### Stage 3 — Identify each stem cluster
+**31 cards**, each showing the **full cluster of 4–5 question stems** from a single subskill.
+Choose the ATL, then the subskill. You get **instant right/wrong feedback**, and any cluster you
+get wrong can be **retried immediately** without losing your place.
 
-**Vercel / Cloudflare Pages** — import the folder as a static project; no build command needed.
+**Scoring:** the headline score is *first-try accuracy*; clusters that needed a retry are
+reported separately, so the number reflects genuine understanding.
 
-**Your own school server** — upload the folder to any web directory. There is no backend, no
-database and no build step.
+---
+
+## Content
+
+Extracted from *ATL Skills & Subskills Question Stems — Upper Primary (ver 2)*:
+
+| ATL | Subskills | Stems |
+|-----|-----------|-------|
+| Thinking Skills | 4 | 20 |
+| Social Skills | 6 | 25 |
+| Self-Management Skills | 8 | 33 |
+| Communication Skills | 8 | 32 |
+| Research Skills | 5 | 18 |
+| **Total** | **31** | **128** |
+
+Every ATL, subskill and question stem is available in **English and 简体中文**.
+
+---
+
+## Running it
+
+**Online** — just open https://dannyenglish.github.io/atl-tester/
+
+**Offline** — download [`atl-tester.html`](atl-tester.html). It's a single self-contained file
+(everything inlined): double-click it and it works. No server, no installation, no internet.
+
+**Your own server** — this repo *is* the site. Copy `index.html`, `data.js` and `i18n.js` to any
+web directory. There is no backend, no database and no build step.
 
 ---
 
@@ -41,9 +70,12 @@ database and no build step.
 | `data.js` | The 5 ATLs, 31 subskills and 128 question stems (EN + 中文) |
 | `i18n.js` | All UI strings (EN + 中文) |
 | `atl-tester.html` | Single-file version — everything inlined |
+| `build-info.txt` | Plain-text share notes |
+
+---
 
 ## Notes
 
 - No frameworks, no external requests, no tracking. Works offline.
-- The language choice is remembered in the browser (localStorage).
-- Source of the content: *ATL Skills & Subskills Question Stems — Upper Primary (ver 2)*.
+- The language choice is remembered in the browser (`localStorage`).
+- Rebuilt from source with `build.js`; verified end-to-end with a headless test suite.
